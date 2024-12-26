@@ -19,7 +19,7 @@ app.use(cors(corsOptions));
 
 const apiRouter = express.Router();
 
-apiRouter.get("/pokemon", async (req, res) => {
+apiRouter.get("/pokeapp", async (req, res) => {
     try {
         const referrer = req.get("Referer") || req.get("Origin") || "Unknown source";
         console.log(`Request coming from: ${referrer}`);

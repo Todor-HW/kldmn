@@ -3,7 +3,7 @@ import { axiosClient } from "./axios";
 
 export const fetchData = async (name: string) => {
     try {
-        const res = await axiosClient.get(`/pokemon`, { params: { name } });
+        const res = await axiosClient.get(`/pokeapp`, { params: { name } });
         const data = res.data;
 
         return data;
