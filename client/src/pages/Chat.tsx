@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { IconSend } from "../icons";
 
-const socket = io("http://localhost:8080");
+const SOCKET_BASE_URL =
+    import.meta.env.MODE === "production" ? "https://api.kldmn.xyz" : "http://localhost:8080";
+
+const socket = io(SOCKET_BASE_URL);
 
 interface Message {
     sid: string;
