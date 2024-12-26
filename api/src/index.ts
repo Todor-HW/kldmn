@@ -21,7 +21,9 @@ const apiRouter = express.Router();
 
 apiRouter.get("/pokemon", async (req, res) => {
     try {
-        console.log(`Incoming request: ${req.method} ${req.url}`);
+        console.log(
+            `Incoming request from: ${req.protocol}://${req.get("host")}${req.originalUrl}`
+        );
 
         const { name } = req.query;
         const formatted = typeof name === "string" && name?.toLowerCase();
