@@ -21,9 +21,8 @@ const apiRouter = express.Router();
 
 apiRouter.get("/pokemon", async (req, res) => {
     try {
-        console.log(
-            `Incoming request from: ${req.protocol}://${req.get("host")}${req.originalUrl}`
-        );
+        const referrer = req.get("Referer") || req.get("Origin") || "Unknown source";
+        console.log(`Request coming from: ${referrer}`);
 
         const { name } = req.query;
         const formatted = typeof name === "string" && name?.toLowerCase();
