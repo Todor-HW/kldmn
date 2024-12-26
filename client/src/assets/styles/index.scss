@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: "Poppins", system-ui, sans-serif;
+    }
+}
+
+html {
+    width: 100vw;
+    height: 100vh;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    // background: linear-gradient(135deg, #ffa351, #ffdd67);
+}
+
+#root {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
