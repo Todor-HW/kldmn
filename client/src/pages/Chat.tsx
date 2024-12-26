@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { IconSend } from "../icons";
 
-const SOCKET_BASE_URL =
-    import.meta.env.MODE === "production" ? "https://api.kldmn.xyz" : "http://localhost:8080";
-
-const socket = io(SOCKET_BASE_URL);
+interface ISocket extends Socket {
+    name?: string;
+}
 
 interface Message {
     sid: string;
@@ -18,8 +17,10 @@ const initMessages: Message[] = [
     // { sid: "2", msg: "Hey, I'm fine. And you?" },
 ];
 
-export const Chat = () => {
-    const [socketId, set_socketId] = useState<string | null>(null);
+export const Chat = (props: { socket: ISocket }) => {
+    const { socket } = props;
+
+    // const [socketId, set_socketId] = useState<string | null>(null);
     const [messages, set_messages] = useState<Message[]>([...initMessages]);
     const [inputValue, set_inputValue] = useState<string>("");
 
@@ -30,16 +31,12 @@ export const Chat = () => {
     }, [messages]);
 
     useEffect(() => {
-        socket.on("connect", () => {
-            socket.id && set_socketId(socket.id);
-        });
-
         socket.on("receive_message", (data) => {
+            console.log("Received message:", data);
             set_messages((prevState) => [...prevState, data]);
         });
 
         return () => {
-            socket.off("connect");
             socket.off("receive_message");
         };
     }, []);
@@ -66,7 +63,7 @@ export const Chat = () => {
                                         key={i}
                                         className={[
                                             "chat",
-                                            m.sid === socketId ? "chat-end" : "chat-start",
+                                            m.sid === socket.id ? "chat-end" : "chat-start",
                                         ].join(" ")}
                                     >
                                         <div className="chat-header">
