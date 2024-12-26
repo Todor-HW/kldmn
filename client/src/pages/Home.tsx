@@ -9,6 +9,9 @@ export const Home = () => {
                     <li className="underline active:text-primary hover:text-primary">
                         <Link to="/pokeapp">PokeApp</Link>
                     </li>
+                    <li className="underline active:text-primary hover:text-primary">
+                        <Link to="/chat">Chat</Link>
+                    </li>
                 </ul>
             </div>
         </>

@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import { Home, PokeApp } from "./pages";
+import { Chat, Home, PokeApp } from "./pages";
 
 function App() {
     return (
@@ -8,6 +8,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/pokeapp" element={<PokeApp />} />
+                <Route path="/chat" element={<Chat />} />
             </Routes>
         </BrowserRouter>
     );

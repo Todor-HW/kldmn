@@ -1,10 +1,11 @@
 import express from "express";
+import http from "http";
+import socketIo from "socket.io";
 import cors from "cors";
 
 import { Pokemon } from "./types/pokemonTypes";
 
-const app = express();
-const port = 8080;
+const PORT = 8080;
 
 const corsOptions = {
     origin: [
@@ -15,9 +16,26 @@ const corsOptions = {
     ],
 };
 
+const app = express();
+const httpServer = http.createServer(app);
+const io = new socketIo.Server(httpServer, { cors: corsOptions });
+
 app.use(cors(corsOptions));
 
 const apiRouter = express.Router();
+
+io.on("connection", (socket) => {
+    console.log(`${socket.id} user just connected`);
+
+    socket.on("send_message", (data) => {
+        console.log("Message sent:", data);
+        io.emit("receive_message", { ...data, sid: socket.id });
+    });
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected");
+    });
+});
 
 apiRouter.get("/pokeapp", async (req, res) => {
     try {
@@ -64,12 +82,20 @@ apiRouter.get("/pokeapp", async (req, res) => {
     }
 });
 
+apiRouter.get("/chat", async (req, res) => {
+    try {
+        res.status(200).json({ msg: "Hello, World!" });
+    } catch (err) {
+        res.status(500).json({ err: "An unexpected error occured." });
+    }
+});
+
 app.use("/api", apiRouter);
 
 app.get("*", (_req, res) => {
     res.sendStatus(404);
 });
 
-app.listen(port, () => {
-    console.log(`App is listening on port: ${port}`);
+httpServer.listen(PORT, () => {
+    console.log(`App is listening on port: ${PORT}`);
 });
