@@ -106,7 +106,7 @@ export const Chat = () => {
                                             </time>
                                         </div>
                                         <div className="chat-bubble">{m.message}</div>
-                                        {/* <div className="chat-footer opacity-50">Seen</div> */}
+                                        <div className="chat-footer opacity-50">Seen</div>
                                     </li>
                                 );
                             })}
