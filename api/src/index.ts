@@ -1,9 +1,12 @@
-import express from "express";
+import express, { Router } from "express";
 import http from "http";
 import socketIo from "socket.io";
 import cors from "cors";
+import { v4 as uuidv4 } from "uuid";
 
-import { Pokemon } from "./types/pokemonTypes";
+import pokeAppRouter from "./controllers";
+import { generateRandomUsername } from "./utils/generator";
+import { Message, User } from "./types/chatTypes";
 
 const PORT = 8080;
 
@@ -20,69 +23,42 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new socketIo.Server(httpServer, { cors: corsOptions });
 
+app.use(express.json());
 app.use(cors(corsOptions));
 
-const apiRouter = express.Router();
+const chatRouter = Router();
+
+const users = new Map<string, User>();
+const messages: Message[] = [];
+
+function pushMessage(message: Message) {
+    if (messages.length >= 5) {
+        messages.shift();
+    }
+    messages.push(message);
+}
 
 io.on("connection", (socket) => {
-    console.log(`${socket.id} user just connected`);
-
     socket.on("send_message", (data) => {
-        console.log("Message sent:", data);
-        io.emit("receive_message", { ...data, sid: socket.id });
+        const { userId } = data;
+        const user = users.get(userId);
+
+        const message: Message = {
+            ...data,
+            username: user?.username || "Anonymous",
+            timestamp: Date.now(),
+        };
+        io.emit("receive_message", message);
+        pushMessage(message);
     });
 
     socket.on("disconnect", () => {
-        console.log("A user disconnected");
+        console.log(`User disconnected: ${socket.id}`);
+        users.delete(socket.id);
     });
 });
 
-apiRouter.get("/pokeapp", async (req, res) => {
-    try {
-        const referrer = req.get("Referer") || req.get("Origin") || "Unknown source";
-        console.log(`Request coming from: ${referrer}`);
-
-        const { name } = req.query;
-        const formatted = typeof name === "string" && name?.toLowerCase();
-        if (!formatted) {
-            res.status(500).json({ error: "Not a valid input" });
-            return;
-        }
-
-        const [dataPokemon, dataSpecies] = await Promise.all([
-            fetch(`https://pokeapi.co/api/v2/pokemon/${formatted}`),
-            fetch(`https://pokeapi.co/api/v2/pokemon-species/${formatted}`),
-        ]);
-
-        const results = await Promise.allSettled([dataPokemon.json(), dataSpecies.json()]);
-
-        const pokemon = results[0]?.status === "fulfilled" ? results[0].value : null;
-        const species = results[1]?.status === "fulfilled" ? results[1].value : null;
-
-        if (!pokemon || !species) {
-            res.status(404).json({ err: "Pokemon or species not found" });
-            return;
-        }
-
-        const data: Pokemon = {
-            name: pokemon?.name,
-            weight: pokemon?.weight,
-            height: pokemon?.height,
-            baseExperience: pokemon?.base_experience,
-            abilities: pokemon?.abilities,
-            types: pokemon?.types?.map((t: any) => t.type?.name),
-            forms: pokemon?.forms?.map((f: any) => f.name),
-            img: pokemon?.sprites?.front_default,
-            description: species?.flavor_text_entries?.[0]?.flavor_text,
-        };
-
-        res.json(data);
-    } catch (err) {
-        res.status(500).json({ err: "An unexpected error occured." });
-    }
-});
-
-apiRouter.get("/chat", async (req, res) => {
+chatRouter.get("/", async (req, res) => {
     try {
         res.status(200).json({ msg: "Hello, World!" });
     } catch (err) {
@@ -90,7 +66,36 @@ apiRouter.get("/chat", async (req, res) => {
     }
 });
 
-app.use("/api", apiRouter);
+chatRouter.get("/messages", async (_req, res) => {
+    try {
+        res.status(200).json({ messages });
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).json({ err: "An unexpected error occured" });
+    }
+});
+
+chatRouter.get("/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const existingUser = userId && users.get(userId);
+        if (existingUser) {
+            res.status(200).json({ ...existingUser });
+        } else {
+            const newUserId = uuidv4();
+            const newUser: User = { userId: newUserId, username: generateRandomUsername() };
+            users.set(newUserId, newUser);
+            res.status(200).json({ ...newUser });
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).json({ err: "An unexpected error occured" });
+    }
+});
+
+app.use("/api/pokeapp", pokeAppRouter);
+app.use("/api/chat", chatRouter);
 
 app.get("*", (_req, res) => {
     res.sendStatus(404);
