@@ -1,1 +1,2 @@
-export * from "./pokeApi";
+export * from "./pokeAppApi";
+export * from "./chatAppApi";

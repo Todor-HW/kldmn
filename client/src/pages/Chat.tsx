@@ -1,50 +1,83 @@
 import { useEffect, useRef, useState } from "react";
-import { Socket } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+import Cookies from "js-cookie";
+import moment from "moment";
+
+import { User } from "../types/chatTypes";
+import { fetchMessages, fetchUser } from "../services";
+import { useScrollIntoView, usePreventAppScroll } from "../hooks";
+
 import { IconSend } from "../icons";
+
+const SOCKET_BASE_URL =
+    import.meta.env.MODE === "production" ? "https://api.kldmn.xyz" : "http://localhost:8080";
 
 interface ISocket extends Socket {
     name?: string;
 }
 
 interface Message {
-    sid: string;
-    msg: string;
+    userId: string;
+    message: string;
+    username: string;
+    timestamp: number;
 }
 
-const initMessages: Message[] = [
-    // { sid: "1", msg: "Hello!" },
-    // { sid: "1", msg: "How are you?" },
-    // { sid: "2", msg: "Hey, I'm fine. And you?" },
-];
-
-export const Chat = (props: { socket: ISocket }) => {
-    const { socket } = props;
-
-    // const [socketId, set_socketId] = useState<string | null>(null);
-    const [messages, set_messages] = useState<Message[]>([...initMessages]);
+export const Chat = () => {
+    const [user, set_user] = useState<User | null>(null);
+    const [messages, set_messages] = useState<Message[]>([]);
     const [inputValue, set_inputValue] = useState<string>("");
 
+    const socketRef = useRef<ISocket | null>(null);
     const listBottomElRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        listBottomElRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    usePreventAppScroll();
+    useScrollIntoView(listBottomElRef, messages);
 
     useEffect(() => {
-        socket.on("receive_message", (data) => {
-            console.log("Received message:", data);
-            set_messages((prevState) => [...prevState, data]);
-        });
+        const fetchData = async () => {
+            const userId = Cookies.get("userId");
+            const user = await fetchUser(userId);
+            Cookies.set("userId", user.userId);
+            set_user(user);
 
-        return () => {
-            socket.off("receive_message");
+            const messages = await fetchMessages();
+            set_messages(messages.messages);
         };
+
+        fetchData();
     }, []);
 
+    useEffect(() => {
+        if (user) {
+            const socket = io(SOCKET_BASE_URL);
+            socketRef.current = socket;
+
+            return () => {
+                socket.disconnect();
+            };
+        }
+    }, [user]);
+
+    useEffect(() => {
+        const socket = socketRef.current;
+        if (socket) {
+            socket.on("connect", () => console.log("[io] Connect:", socket.id));
+            socket.on("receive_message", (data) => {
+                set_messages((prevState) => [...prevState, data]);
+            });
+
+            return () => {
+                socket.off("connect");
+                socket.off("receive_message");
+                socket.disconnect();
+            };
+        }
+    }, [socketRef.current]);
+
     const sendMessageHandler = () => {
-        if (inputValue.trim().length > 0) {
-            const data = { msg: inputValue };
-            socket.emit("send_message", data);
+        if (inputValue.trim().length > 0 && socketRef.current?.connected) {
+            socketRef.current?.emit("send_message", { userId: user?.userId, message: inputValue });
             set_inputValue("");
         }
     };
@@ -63,14 +96,16 @@ export const Chat = (props: { socket: ISocket }) => {
                                         key={i}
                                         className={[
                                             "chat",
-                                            m.sid === socket.id ? "chat-end" : "chat-start",
+                                            m.userId === user?.userId ? "chat-end" : "chat-start",
                                         ].join(" ")}
                                     >
                                         <div className="chat-header">
-                                            {/* Obi-Wan Kenobi */}
-                                            <time className="text-xs opacity-50">12:15</time>
+                                            {m.username}{" "}
+                                            <time className="text-xs opacity-50">
+                                                {moment(m.timestamp).format("HH:mm")}
+                                            </time>
                                         </div>
-                                        <div className="chat-bubble">{m.msg}</div>
+                                        <div className="chat-bubble">{m.message}</div>
                                         {/* <div className="chat-footer opacity-50">Seen</div> */}
                                     </li>
                                 );
