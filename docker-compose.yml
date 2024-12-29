@@ -8,8 +8,8 @@ services:
             - "8080:8080"
         env_file:
             - .env.production
-        environment:
-            - NODE_ENV=production
+        depends_on:
+            - mongo
         networks:
             - mypokenetwork
 
@@ -17,14 +17,12 @@ services:
         build:
             context: ./client
         ports:
-            - "3000:80"
+            - "3000:3000"
         networks:
             - mypokenetwork
 
     mongo:
         image: mongo:6
-        ports:
-            - "27017:27017"
         volumes:
             - mongo_data:/data/db
         networks:
