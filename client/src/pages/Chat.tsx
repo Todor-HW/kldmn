@@ -17,7 +17,7 @@ interface ISocket extends Socket {
 }
 
 interface Message {
-    userId: string;
+    publicId: string;
     message: string;
     username: string;
     timestamp: number;
@@ -36,9 +36,9 @@ export const Chat = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const userId = Cookies.get("userId");
-            const user = await fetchUser(userId);
-            Cookies.set("userId", user.userId);
+            const publicId = Cookies.get("publicId");
+            const user = await fetchUser(publicId);
+            Cookies.set("publicId", user.publicId);
             set_user(user);
 
             const messages = await fetchMessages();
@@ -77,7 +77,10 @@ export const Chat = () => {
 
     const sendMessageHandler = () => {
         if (inputValue.trim().length > 0 && socketRef.current?.connected) {
-            socketRef.current?.emit("send_message", { userId: user?.userId, message: inputValue });
+            socketRef.current?.emit("send_message", {
+                publicId: user?.publicId,
+                message: inputValue,
+            });
             set_inputValue("");
         }
     };
@@ -96,7 +99,9 @@ export const Chat = () => {
                                         key={i}
                                         className={[
                                             "chat",
-                                            m.userId === user?.userId ? "chat-end" : "chat-start",
+                                            m.publicId === user?.publicId
+                                                ? "chat-end"
+                                                : "chat-start",
                                         ].join(" ")}
                                     >
                                         <div className="chat-header">

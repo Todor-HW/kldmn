@@ -1,10 +1,10 @@
 export interface User {
-    userId: string;
+    publicId: string;
     username: string;
 }
 
 export interface Message {
-    userId: string;
+    publicId: string;
     message: string;
     username: string;
     timestamp: number;

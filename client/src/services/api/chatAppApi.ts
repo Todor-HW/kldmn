@@ -1,9 +1,9 @@
 import { isAxiosError } from "axios";
 import { axiosClient } from "./axios";
 
-export const fetchUser = async (userId: string | undefined) => {
+export const fetchUser = async (publicId: string | undefined) => {
     try {
-        const res = await axiosClient.get(`/chat/${userId}`);
+        const res = await axiosClient.get(`/chat/users/${publicId}`);
         const data = res.data;
 
         return data;

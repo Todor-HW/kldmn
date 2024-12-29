@@ -19,6 +19,18 @@ services:
         networks:
             - mypokenetwork
 
+    mongo:
+        image: mongo:6
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo_data:/data/db
+        networks:
+            - mypokenetwork
+
+volumes:
+    mongo_data:
+
 networks:
     mypokenetwork:
         driver: bridge

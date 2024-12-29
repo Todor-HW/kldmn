@@ -4,7 +4,7 @@ import { Pokemon } from "../types/pokemonTypes";
 
 const router = Router();
 
-router.get("/pokeapp", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const referrer = req.get("Referer") || req.get("Origin") || "Unknown source";
         console.log(`Request coming from: ${referrer}`);

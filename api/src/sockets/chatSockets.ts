@@ -1,0 +1,29 @@
+import { Server } from "socket.io";
+
+import { Message, User } from "../types/chatTypes";
+import { MessageModel, UserModel } from "../models";
+
+const users = new Map<string, User>();
+
+export function setupChatSockets(io: Server) {
+    io.on("connection", (socket) => {
+        // Send message
+        socket.on("send_message", async (data) => {
+            const { publicId } = data;
+            const user = await UserModel.findOne({ publicId }).lean();
+
+            const message: Message = {
+                ...data,
+                username: user?.username || "Anonymous",
+                timestamp: Date.now(),
+            };
+            await MessageModel.create(message);
+            io.emit("receive_message", message);
+        });
+
+        // Disconnect
+        socket.on("disconnect", () => {
+            console.info(`User disconnected: ${socket.id}`);
+        });
+    });
+}
