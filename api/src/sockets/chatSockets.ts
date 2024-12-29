@@ -1,9 +1,7 @@
 import { Server } from "socket.io";
 
-import { Message, User } from "../types/chatTypes";
+import { Message } from "../types/chatTypes";
 import { MessageModel, UserModel } from "../models";
-
-const users = new Map<string, User>();
 
 export function setupChatSockets(io: Server) {
     io.on("connection", (socket) => {
