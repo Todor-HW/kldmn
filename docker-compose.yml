@@ -27,6 +27,7 @@ services:
             - mongo_data:/data/db
         networks:
             - mypokenetwork
+        command: ["mongod", "--quiet", "--logpath", "/dev/null"] # Suppresses logs
 
 volumes:
     mongo_data:
