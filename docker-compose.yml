@@ -17,7 +17,7 @@ services:
         build:
             context: ./client
         ports:
-            - "3000:3000"
+            - "3000:80"
         networks:
             - mypokenetwork
 
