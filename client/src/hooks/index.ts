@@ -1,2 +1,2 @@
 export * from "./usePreventAppScroll";
-export * from "./useScrollIntoView";
+export * from "./useScrollToLastMessage";

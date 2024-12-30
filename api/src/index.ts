@@ -14,10 +14,10 @@ const io = new Server(httpServer, { cors: corsOptions });
 
 setupChatSockets(io);
 
-app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 app.use(cors(corsOptions));
+process.env.NODE_ENV === "production" && app.use(limiter);
 
 app.use("/api/pokeapp", pokeAppRouter);
 app.use("/api/chat", chatRouter);

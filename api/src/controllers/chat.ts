@@ -1,14 +1,11 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 
-import { Message, User } from "../types/chatTypes";
+import { User } from "../types/chatTypes";
 import { generateRandomUsername } from "../utils/generator";
 import { MessageModel, UserModel } from "../models";
 
 const router = Router();
-
-// const users = new Map<string, User>();
-const messages: Message[] = [];
 
 router.get("/", async (req, res) => {
     try {
