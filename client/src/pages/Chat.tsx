@@ -30,10 +30,11 @@ export const Chat = () => {
     const [messages, set_messages] = useState<Message[]>([]);
     const [inputValue, set_inputValue] = useState<string>("");
     const [isPeerTyping, set_isPeerTyping] = useState<boolean>(false);
-    const [canEmitIsTyping, set_canEmitIsTyping] = useState<boolean>(true);
 
     const socketRef = useRef<ISocket | null>(null);
     const listElRef = useRef<HTMLUListElement>(null);
+    const outTypingTimerRef = useRef<number | null>(null);
+    const inTypingTimerRef = useRef<number | null>(null);
 
     usePreventAppScroll();
     const { scrollToLastMessage } = useScrollToLastMessage(listElRef, messages);
@@ -89,9 +90,12 @@ export const Chat = () => {
 
             socket.on("is_typing", () => {
                 set_isPeerTyping(true);
+                if (inTypingTimerRef.current) clearTimeout(inTypingTimerRef.current);
+                inTypingTimerRef.current = setTimeout(() => set_isPeerTyping(false), 5000);
             });
 
             socket.on("receive_message", (data) => {
+                set_isPeerTyping(false);
                 set_messages((prevState) => [...prevState, data]);
             });
 
@@ -103,11 +107,6 @@ export const Chat = () => {
         }
     }, [socketRef.current]);
 
-    useEffect(() => {
-        const timeoutId = setTimeout(() => set_isPeerTyping(false), 3000);
-        return () => clearTimeout(timeoutId);
-    }, [isPeerTyping]);
-
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         set_inputValue(e.currentTarget?.value || "");
     };
@@ -118,11 +117,10 @@ export const Chat = () => {
             return;
         }
 
-        if (canEmitIsTyping) {
-            console.log("test");
+        if (outTypingTimerRef.current === null) {
+            console.log("emit...");
             socketRef.current?.volatile.emit("is_typing", { publicId: user?.publicId });
-            set_canEmitIsTyping(false);
-            setTimeout(() => set_canEmitIsTyping(true), 2500);
+            outTypingTimerRef.current = setTimeout(() => (outTypingTimerRef.current = null), 3000);
         }
     };
 
@@ -181,7 +179,6 @@ export const Chat = () => {
                                             </li>
                                         );
                                     })}
-                                    {/* <div ref={listBottomElRef} className="opacity-0" /> */}
                                 </>
                             )}
                         </ul>

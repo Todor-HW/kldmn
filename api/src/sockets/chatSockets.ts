@@ -6,11 +6,11 @@ import { MessageModel, UserModel } from "../models";
 export function setupChatSockets(io: Server) {
     io.on("connection", (socket) => {
         // Is typing
-        socket.on("is_typing", async (data) => {
-            const { publicId } = data;
-            const user = await UserModel.findOne({ publicId }).lean();
+        socket.on("is_typing", async (_data) => {
+            // const { publicId } = data;
+            // const user = await UserModel.findOne({ publicId }).lean();
 
-            io.emit("is_typing", {});
+            socket.broadcast.emit("is_typing", {});
         });
 
         // Send message
