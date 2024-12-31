@@ -3,7 +3,8 @@ import { model, Schema } from "mongoose";
 import { Message } from "../types/chatTypes";
 
 const messageSchema = new Schema<Message>({
-    publicId: String,
+    from: String,
+    to: String,
     message: String,
     username: String,
     timestamp: Number,

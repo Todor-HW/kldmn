@@ -1,3 +1,5 @@
+import { customAlphabet } from "nanoid";
+
 import { adjectives, usernames } from "../data";
 
 export function generateRandomUsername() {
@@ -9,4 +11,10 @@ export function generateRandomUsername() {
 
     const username = firstUpper + secondUpper;
     return username;
+}
+
+export function generatePublicId(length?: number) {
+    const alphanumericAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const nanoid = customAlphabet(alphanumericAlphabet, length ?? 32);
+    return nanoid();
 }

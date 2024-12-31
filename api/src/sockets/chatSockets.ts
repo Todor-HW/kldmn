@@ -1,35 +1,57 @@
-import { Server } from "socket.io";
+import { Server as HttpServer } from "http";
+import { DefaultEventsMap, Server } from "socket.io";
 
+import { corsOptions } from "../config";
 import { Message } from "../types/chatTypes";
-import { MessageModel, UserModel } from "../models";
+import { MessageModel } from "../models";
 
-export function setupChatSockets(io: Server) {
-    io.on("connection", (socket) => {
-        // Is typing
-        socket.on("is_typing", async (_data) => {
-            // const { publicId } = data;
-            // const user = await UserModel.findOne({ publicId }).lean();
+const io = new Server<
+    DefaultEventsMap,
+    DefaultEventsMap,
+    DefaultEventsMap,
+    {
+        publicId: string;
+    }
+>({ cors: corsOptions });
 
-            socket.broadcast.emit("is_typing", {});
+function bindListeners() {
+    io.use((socket, next) => {
+        const publicId = socket.handshake.auth.publicId;
+        if (!publicId) {
+            return next(new Error("Invalid publicId"));
+        }
+        socket.data.publicId = publicId;
+        next();
+    }).on("connection", (socket) => {
+        console.log(`[io] Connected pubicId: ${socket.data.publicId}`);
+
+        socket.join(socket.data.publicId);
+
+        socket.on("is_typing", async ({ to }) => {
+            socket.to(to).emit("is_typing", {
+                from: socket.data.publicId,
+            });
         });
 
-        // Send message
-        socket.on("send_message", async (data) => {
-            const { publicId } = data;
-            const user = await UserModel.findOne({ publicId }).lean();
-
-            const message: Message = {
-                ...data,
-                username: user?.username || "Anonymous",
+        socket.on("send_message", async ({ to, message }) => {
+            const newMessage: Message = {
+                from: socket.data.publicId,
+                to,
+                message,
                 timestamp: Date.now(),
             };
-            await MessageModel.create(message);
-            io.emit("receive_message", message);
+            await MessageModel.create(newMessage);
+            socket.to(to).emit("receive_message", newMessage);
         });
 
-        // Disconnect
         socket.on("disconnect", () => {
             console.info(`User disconnected: ${socket.id}`);
         });
     });
+}
+
+export function addWebSocket(server: HttpServer) {
+    io.attach(server);
+    bindListeners();
+    console.info("[io] Socket added successfully");
 }

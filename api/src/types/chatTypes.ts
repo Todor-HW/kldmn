@@ -4,8 +4,9 @@ export interface User {
 }
 
 export interface Message {
-    publicId: string;
+    from: string;
+    to: string;
     message: string;
-    username: string;
+    // username: string;
     timestamp: number;
 }

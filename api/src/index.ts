@@ -4,15 +4,14 @@ import { Server } from "socket.io";
 import helmet from "helmet";
 import cors from "cors";
 
-import { connectMongoDb, corsOptions, limiter, loadConfig } from "./config";
-import { setupChatSockets } from "./sockets/chatSockets";
+import { connectMongoDb, corsOptions, limiter } from "./config";
+import { addWebSocket } from "./sockets/chatSockets";
 import { chatRouter, pokeAppRouter } from "./controllers";
 
 const app = express();
 const httpServer = http.createServer(app);
-const io = new Server(httpServer, { cors: corsOptions });
 
-setupChatSockets(io);
+addWebSocket(httpServer);
 
 app.use(helmet());
 app.use(express.json());
@@ -28,7 +27,7 @@ app.get("*", (_req, res) => {
 
 (async () => {
     try {
-        await loadConfig();
+        // await loadConfig(); // Not used because env file is set in the script
         await connectMongoDb();
 
         const port = process.env.PORT || 8080;

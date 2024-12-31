@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../types/chatTypes";
-import { generateRandomUsername } from "../utils/generator";
+import { generatePublicId, generateRandomUsername } from "../utils/generator";
 import { MessageModel, UserModel } from "../models";
 
 const router = Router();
@@ -15,10 +14,32 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/messages", async (_req, res) => {
+router.get("/messages/:publicId", async (req, res) => {
     try {
-        const messages = await MessageModel.find().lean();
-        res.status(200).json({ messages });
+        const { publicId } = req.params;
+        const { to } = req.query;
+
+        const messages = await MessageModel.find({
+            $or: [
+                { from: publicId, to },
+                { from: to, to: publicId },
+            ],
+        }).lean();
+
+        res.status(201).json({ messages });
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).json({ err: "An unexpected error occured" });
+    }
+});
+
+router.get("/users", async (req, res) => {
+    try {
+        const { publicId } = req.query;
+
+        const users = await UserModel.find({ publicId: { $ne: publicId } }, "-_id -__v");
+
+        res.status(200).json({ users });
     } catch (err) {
         console.error("Error:", err);
         res.status(500).json({ err: "An unexpected error occured" });
@@ -38,7 +59,7 @@ router.get("/users/:publicId", async (req, res) => {
             res.status(200).json({ ...existingUser });
         } else {
             const newUser: User = {
-                publicId: uuidv4(),
+                publicId: generatePublicId(12),
                 username: generateRandomUsername(),
             };
             await UserModel.create(newUser);
