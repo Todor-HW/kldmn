@@ -90,9 +90,10 @@ export const Chat = () => {
             });
 
             socket.on("receive_message", (data) => {
-                console.log("receive_message:", data.from, activePeer?.publicId);
                 if (data.from === activePeer?.publicId) {
                     set_isPeerTyping(false);
+                    set_messages((prevState) => [...prevState, data]);
+                } else if (data.from === user?.publicId) {
                     set_messages((prevState) => [...prevState, data]);
                 } else {
                     setNotifications({ from: data.from });
@@ -104,7 +105,7 @@ export const Chat = () => {
                 socket.off("receive_message");
             };
         }
-    }, [socket, isConnected, activePeer, notifications]);
+    }, [socket, isConnected, user, activePeer, notifications]);
 
     return (
         <>
