@@ -6,7 +6,7 @@ const messageSchema = new Schema<Message>({
     from: String,
     to: String,
     message: String,
-    username: String,
+    // username: String,
     timestamp: Number,
 });
 
