@@ -1,11 +1,14 @@
 {
     "compilerOptions": {
+        "target": "ES2021",
         "module": "CommonJS",
         "esModuleInterop": true,
-        "target": "ES2021",
         "moduleResolution": "node",
         "sourceMap": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "removeComments": true
     },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"],
     "lib": ["es2021"]
 }
