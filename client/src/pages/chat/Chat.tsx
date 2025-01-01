@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 import { Message } from "../../types/chatTypes";
 import { fetchUser } from "../../services";
-import { usePreventAppScroll } from "../../hooks";
+// import { usePreventAppScroll } from "../../hooks";
 import { useChatStore } from "../../stores/chatStore";
 import { useErrorStore } from "../../stores/errorStore";
 import { Header, MessageInput, Messages } from "./components";
@@ -31,7 +31,7 @@ export const Chat = () => {
 
     const inTypingTimerRef = useRef<number | null>(null);
 
-    usePreventAppScroll();
+    // usePreventAppScroll();
     // usePeers(); // TODO: remove
 
     useEffect(() => {
