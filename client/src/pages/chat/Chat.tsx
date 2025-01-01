@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 
@@ -6,10 +6,7 @@ import { Message } from "../../types/chatTypes";
 import { fetchUser } from "../../services";
 import { usePreventAppScroll } from "../../hooks";
 import { useChatStore } from "../../stores/chatStore";
-import { Header, Messages } from "./components";
-
-import { MessageInput } from "./components/MessageInput";
-import { usePeers } from "../../hooks/usePeers";
+import { Header, MessageInput, Messages } from "./components";
 
 const SOCKET_BASE_URL =
     import.meta.env.MODE === "production" ? "https://api.kldmn.xyz" : "http://localhost:8080";
@@ -33,7 +30,7 @@ export const Chat = () => {
     const inTypingTimerRef = useRef<number | null>(null);
 
     usePreventAppScroll();
-    usePeers(); // TODO: remove
+    // usePeers(); // TODO: remove
 
     useEffect(() => {
         (async () => {

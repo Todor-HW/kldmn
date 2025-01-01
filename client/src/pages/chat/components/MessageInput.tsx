@@ -41,17 +41,17 @@ export const MessageInput = () => {
 
     return (
         <>
-            <div className="bg-primary p-3 grid grid-cols-12 gap-3">
+            <div className="bg-base-200 p-3 grid grid-cols-12 gap-3">
                 <input
                     type="text"
                     placeholder="..."
-                    className="input col-span-9 w-full"
+                    className="input col-span-9 w-full bg-white shadow-inner"
                     value={inputValue}
                     onChange={onInputChange}
                     onKeyDown={onInputKeyDown}
                 />
                 <button
-                    className="col-span-3 bg-accent rounded-full shadow-md flex items-center justify-center [&:not(:disabled)]:active:shadow-none [&:not(:disabled]:active:scale-90"
+                    className="col-span-3 btn btn-primary rounded-full flex items-center justify-center"
                     onClick={onSendMessage}
                     disabled={inputValue.length <= 0}
                 >

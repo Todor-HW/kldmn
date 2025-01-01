@@ -3,9 +3,9 @@ import { startCase, toLower } from "lodash";
 
 import { fetchData } from "../services";
 import { useErrorStore } from "../stores/errorStore";
+import { ErrorMessage } from "../components";
 
 import { IconExperience, IconForms, IconHeight, IconSearch, IconWeight, Loader } from "../icons";
-import { ErrorMessage } from "../components/errorMessage/ErrorMessage";
 
 interface Pokemon {
     name: string;

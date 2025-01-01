@@ -1,4 +1,4 @@
-import { useErrorStore } from "../../stores/errorStore";
+import { useErrorStore } from "../stores/errorStore";
 
 export const ErrorMessage = (props: { message?: string }) => {
     const { message } = props;

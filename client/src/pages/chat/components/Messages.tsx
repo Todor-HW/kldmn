@@ -6,10 +6,8 @@ import { Message } from "../../../types/chatTypes";
 import { fetchMessages } from "../../../services";
 import { useScrollToLastMessage } from "../../../hooks";
 import { useChatStore } from "../../../stores/chatStore";
-import { ErrorMessage } from "../../../components/errorMessage/ErrorMessage";
+import { ErrorMessage } from "../../../components";
 import { PeerTyping } from "./PeerTyping";
-
-const USE_OFFSET = true;
 
 interface MessagesProps {
     messages: Message[];
@@ -62,12 +60,12 @@ export const Messages = (props: MessagesProps) => {
                                         ].join(" ")}
                                     >
                                         <div className="chat-header">
-                                            {activePeer?.username}{" "}
+                                            {/* {activePeer?.username}{" "} */}
                                             <time className="text-xs opacity-50">
                                                 {moment(m.timestamp).format("HH:mm")}
                                             </time>
                                         </div>
-                                        <div className="chat-bubble max-w-[50%]">{m.message}</div>
+                                        <div className="chat-bubble">{m.message}</div>
                                         {/* <div className="chat-footer opacity-50">Seen</div> */}
                                     </li>
                                 );
