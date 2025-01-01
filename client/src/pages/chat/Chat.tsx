@@ -121,7 +121,7 @@ export const Chat = () => {
     return (
         <>
             <div className="h-screen md:container md:flex md:flex-col md:justify-center">
-                <div className="flex flex-col md:h-[90%] h-full md:shadow-lg md:rounded-lg md:overflow-hidden">
+                <div className="flex flex-col md:h-[90%] h-svh md:shadow-lg md:rounded-lg md:overflow-hidden">
                     <Header />
                     <Messages
                         messages={messages}
