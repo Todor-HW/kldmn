@@ -6,8 +6,9 @@ import { Message } from "../../../types/chatTypes";
 import { fetchMessages } from "../../../services";
 import { useScrollToLastMessage } from "../../../hooks";
 import { useChatStore } from "../../../stores/chatStore";
-import { ErrorMessage, Loading } from "../../../components";
+import { useErrorStore } from "../../../stores/errorStore";
 import { PeerTyping } from "./PeerTyping";
+import { Loading } from "../../../components";
 
 interface MessagesProps {
     messages: Message[];
@@ -19,6 +20,7 @@ export const Messages = (props: MessagesProps) => {
     const { messages, isPeerTyping, setMessages } = props;
 
     const { user, activePeer } = useChatStore();
+    const { setErrorMessage } = useErrorStore();
 
     const listElRef = useRef<HTMLDivElement>(null);
 
@@ -33,12 +35,16 @@ export const Messages = (props: MessagesProps) => {
     );
 
     useEffect(() => {
+        if (error) setErrorMessage(error.message);
+    }, [error]);
+
+    useEffect(() => {
         if (data) setMessages(data);
     }, [data]);
 
     return (
         <>
-            {error && <ErrorMessage message={error?.message} />}
+            {/* {error && <ErrorMessage message={error?.message} />} */}
 
             <div ref={listElRef} className="flex-1 overflow-y-auto bg-white p-3">
                 <div className="space-y-4">

@@ -6,6 +6,7 @@ import { Message } from "../../types/chatTypes";
 import { fetchUser } from "../../services";
 import { usePreventAppScroll } from "../../hooks";
 import { useChatStore } from "../../stores/chatStore";
+import { useErrorStore } from "../../stores/errorStore";
 import { Header, MessageInput, Messages } from "./components";
 
 const SOCKET_BASE_URL =
@@ -26,6 +27,7 @@ export const Chat = () => {
         setUser,
         addNotification,
     } = useChatStore();
+    const { setErrorMessage } = useErrorStore();
 
     const inTypingTimerRef = useRef<number | null>(null);
 
@@ -42,6 +44,7 @@ export const Chat = () => {
                 setUser(fetched);
             } catch (err) {
                 console.error("Error:", err);
+                setErrorMessage((err as Error).message);
             }
         })();
     }, []);

@@ -4,19 +4,32 @@ import Cookies from "js-cookie";
 
 import { User } from "../../../types/chatTypes";
 import { useChatStore } from "../../../stores/chatStore";
+import { useErrorStore } from "../../../stores/errorStore";
 import { usePeers } from "../../../hooks/usePeers";
-import { ErrorMessage, Loading } from "../../../components";
+import { Loading } from "../../../components";
 
 import { IconMenu } from "../../../icons";
 
 export const Peers = () => {
     const [notifsCount, set_notifsCount] = useState<number>(0);
 
-    const { user, activePeer, notifications, setActivePeer, setNotifications, removeNotification } =
-        useChatStore();
+    const {
+        //ln
+        user,
+        activePeer,
+        notifications,
+        setActivePeer,
+        setNotifications,
+        removeNotification,
+    } = useChatStore();
+    const { setErrorMessage } = useErrorStore();
     const { peers, error, isLoading } = usePeers();
 
     const drawerCheckboxElRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (error) setErrorMessage(error.message);
+    }, [error]);
 
     useEffect(() => {
         const storedNotifications = Cookies.get("notifications");
@@ -47,7 +60,7 @@ export const Peers = () => {
 
     return (
         <>
-            {error && <ErrorMessage message={error?.message} />}
+            {/* {error && <ErrorMessage message={error?.message} />} */}
 
             <div className="drawer">
                 <input
