@@ -6,7 +6,7 @@ import { Message } from "../../../types/chatTypes";
 import { fetchMessages } from "../../../services";
 import { useScrollToLastMessage } from "../../../hooks";
 import { useChatStore } from "../../../stores/chatStore";
-import { ErrorMessage } from "../../../components";
+import { ErrorMessage, Loading } from "../../../components";
 import { PeerTyping } from "./PeerTyping";
 
 interface MessagesProps {
@@ -42,12 +42,17 @@ export const Messages = (props: MessagesProps) => {
 
             <div ref={listElRef} className="flex-1 overflow-y-auto bg-white p-3">
                 <div className="space-y-4">
-                    {isLoading ? (
+                    {messages?.length <= 0 && (
                         <>
-                            <div className="h-full flex items-center justify-center">
-                                <span className="loading loading-ring loading-lg" />
-                            </div>
+                            <p className="text-center py-5 opacity-30">
+                                Start the conversation with <strong>{activePeer?.username}</strong>.
+                                <br />
+                                Once you send them a message, it will appear here.
+                            </p>
                         </>
+                    )}
+                    {isLoading ? (
+                        <Loading />
                     ) : (
                         <>
                             {messages?.map((m, i) => {

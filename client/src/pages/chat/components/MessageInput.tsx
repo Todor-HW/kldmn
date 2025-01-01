@@ -16,6 +16,7 @@ export const MessageInput = () => {
     };
 
     const onInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        console.log("keydown", e.key);
         if (e.key === "Enter") {
             onSendMessage();
             return;

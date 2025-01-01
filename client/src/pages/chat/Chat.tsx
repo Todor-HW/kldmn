@@ -24,7 +24,7 @@ export const Chat = () => {
         notifications,
         setSocket,
         setUser,
-        setNotifications,
+        addNotification,
     } = useChatStore();
 
     const inTypingTimerRef = useRef<number | null>(null);
@@ -97,13 +97,14 @@ export const Chat = () => {
             });
 
             socket.on("receive_message", (data) => {
+                console.log("[io] receive_messa");
                 if (data.from === activePeer?.publicId) {
                     set_isPeerTyping(false);
                     set_messages((prevState) => [...prevState, data]);
                 } else if (data.from === user?.publicId) {
                     set_messages((prevState) => [...prevState, data]);
                 } else {
-                    setNotifications({ from: data.from });
+                    addNotification({ from: data.from });
                 }
             });
 

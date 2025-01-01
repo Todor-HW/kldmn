@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Socket } from "socket.io-client";
+import Cookies from "js-cookie";
 
 import { User } from "../types/chatTypes";
 
@@ -7,14 +8,15 @@ interface ChatStore {
     socket: Socket | null;
     user: User | null;
     activePeer: User | null;
-    notifications: Map<string, number>;
+    notifications: Record<string, number>;
     // messages: Message[];
 
     setSocket: (value: Socket) => void;
     setUser: (value: User) => void;
     setActivePeer: (value: User) => void;
-    setNotifications: (data: { from: string }) => void;
-    clearNotifications: (data: { from: string }) => void;
+    setNotifications: (data: Record<string, number>) => void;
+    addNotification: (data: { from: string }) => void;
+    removeNotification: (data: { from: string }) => void;
     // setMessages: (value: Message[]) => void;
 }
 
@@ -22,23 +24,48 @@ export const useChatStore = create<ChatStore>((set) => ({
     socket: null,
     user: null,
     activePeer: null,
-    notifications: new Map(),
+    notifications: {},
     // messages: [],
 
     setSocket: (value) => set({ socket: value }),
     setUser: (value) => set({ user: value }),
     setActivePeer: (value) => set({ activePeer: value }),
-    setNotifications: (data) =>
+    setNotifications: (value) => set({ notifications: value }),
+    addNotification: (data) =>
         set((state) => {
-            const notifications = new Map(state.notifications);
-            const currentCount = notifications.get(data.from) || 0;
-            notifications.set(data.from, currentCount + 1);
+            const notifications = { ...state.notifications };
+
+            if (data.from) {
+                const currentCount = notifications[data.from] || 0;
+                notifications[data.from] = currentCount + 1;
+
+                // Update or set cookie
+                const stored = Cookies.get("notifications");
+                const parsed = stored ? JSON.parse(stored) : {};
+                parsed[data.from] = currentCount + 1;
+                Cookies.set("notifications", JSON.stringify(parsed));
+            } else {
+                console.error("Invalid data: 'from' is required.");
+            }
+
             return { notifications };
         }),
-    clearNotifications: (data) => {
+    removeNotification: (data) => {
         set((state) => {
-            const notifications = new Map(state.notifications);
-            notifications.delete(data.from);
+            const notifications = { ...state.notifications };
+
+            if (data.from) {
+                delete notifications[data.from];
+
+                // Update or set cookie
+                const stored = Cookies.get("notifications");
+                const parsed = stored ? JSON.parse(stored) : {};
+                delete parsed[data.from];
+                Cookies.set("notifications", JSON.stringify(parsed));
+            } else {
+                console.error("Invalid data: 'from' is required.");
+            }
+
             return { notifications };
         });
     },
