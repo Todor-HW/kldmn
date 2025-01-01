@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 
@@ -6,9 +6,10 @@ import { Message } from "../../types/chatTypes";
 import { fetchUser } from "../../services";
 import { usePreventAppScroll } from "../../hooks";
 import { useChatStore } from "../../stores/chatStore";
-import { Messages, Peers } from "./components";
+import { Header, Messages } from "./components";
 
 import { MessageInput } from "./components/MessageInput";
+import { usePeers } from "../../hooks/usePeers";
 
 const SOCKET_BASE_URL =
     import.meta.env.MODE === "production" ? "https://api.kldmn.xyz" : "http://localhost:8080";
@@ -18,12 +19,21 @@ export const Chat = () => {
     const [messages, set_messages] = useState<Message[]>([]);
     const [isPeerTyping, set_isPeerTyping] = useState<boolean>(false);
 
-    const { socket, user, activePeer, notifications, setSocket, setUser, setNotifications } =
-        useChatStore();
+    const {
+        //ln
+        socket,
+        user,
+        activePeer,
+        notifications,
+        setSocket,
+        setUser,
+        setNotifications,
+    } = useChatStore();
 
     const inTypingTimerRef = useRef<number | null>(null);
 
     usePreventAppScroll();
+    usePeers(); // TODO: remove
 
     useEffect(() => {
         (async () => {
@@ -109,34 +119,15 @@ export const Chat = () => {
 
     return (
         <>
-            <div className="container h-full lg:max-w-[50vw]">
-                <h2 className="text-xl text-center shadow-sm bg-base-100 py-5">
-                    You are logged in as: <span className="font-bold">{user?.username}</span>
-                </h2>
-                <div className="h-full border-2 border-primary bg-white shadow-lg rounded-lg overflow-hidden">
-                    <div className="grid grid-cols-12">
-                        <div className="col-span-4 border-e-2 border-primary">
-                            <Peers />
-                        </div>
-                        <div className="col-span-8">
-                            <h2 className="text-center font-bold shadow-sm bg-base-100 py-5">
-                                {activePeer?.username}
-                            </h2>
-                            <div className="relative">
-                                <Messages messages={messages} setMessages={set_messages} />
-                                {isPeerTyping && (
-                                    <>
-                                        <span className="indicator-item badge badge-secondary absolute bottom-2 left-5 p-3">
-                                            <span className="loading loading-dots loading-sm" />
-                                        </span>
-                                    </>
-                                )}
-                            </div>
-                            <div className="grid-cols w-full bg-primary p-5 grid grid-cols-12 gap-5">
-                                <MessageInput />
-                            </div>
-                        </div>
-                    </div>
+            <div className="h-screen md:container md:flex md:flex-col md:justify-center">
+                <div className="flex flex-col md:h-[90%] h-full md:shadow-lg md:rounded-lg md:overflow-hidden">
+                    <Header />
+                    <Messages
+                        messages={messages}
+                        isPeerTyping={isPeerTyping}
+                        setMessages={set_messages}
+                    />
+                    <MessageInput />
                 </div>
             </div>
         </>

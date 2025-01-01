@@ -1,29 +1,12 @@
-import useSWR from "swr";
 import { User } from "../../../types/chatTypes";
-import { fetchUsers } from "../../../services";
-import { ErrorMessage } from "../../../components/errorMessage/ErrorMessage";
-import { useEffect, useState } from "react";
 import { useChatStore } from "../../../stores/chatStore";
+import { usePeers } from "../../../hooks/usePeers";
+import { ErrorMessage } from "../../../components/errorMessage/ErrorMessage";
 
 export const Peers = () => {
-    const [peers, set_peers] = useState<User[]>([]);
-
     const { user, activePeer, notifications, setActivePeer, clearNotifications } = useChatStore();
 
-    const { data, error, isLoading } = useSWR(
-        user?.publicId ? `/chat/users?publicId=${user?.publicId}` : null,
-        fetchUsers,
-        {
-            dedupingInterval: 5000,
-        }
-    );
-
-    useEffect(() => {
-        if (data) {
-            set_peers(data);
-            setActivePeer(data[0]);
-        }
-    }, [data]);
+    const { peers, error, isLoading } = usePeers();
 
     const onSelectUser = (peer: User) => {
         setActivePeer(peer);

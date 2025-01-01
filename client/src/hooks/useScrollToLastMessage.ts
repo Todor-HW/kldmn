@@ -1,25 +1,21 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useRef } from "react";
 
 import { Message } from "../types/chatTypes";
 
-const USE_OFFSET = true;
-
-export const useScrollToLastMessage = (ref: RefObject<HTMLElement>, messages: Message[]) => {
-    const scrollToLastMessage = () => {
-        if (ref.current) {
-            const { scrollHeight } = ref.current;
-            ref.current?.scrollTo(0, scrollHeight);
-        }
-    };
+export const useScrollToLastMessage = (listElRef: RefObject<HTMLElement>, messages: Message[]) => {
+    const isInitScroll = useRef<boolean>(true);
 
     useEffect(() => {
-        if (ref.current) {
-            const { offsetHeight, scrollHeight, scrollTop } = ref.current;
-            if (!USE_OFFSET || scrollHeight <= scrollTop + offsetHeight + 150) {
-                scrollToLastMessage();
+        if (listElRef.current && messages.length > 0) {
+            const listEl = listElRef.current;
+            const { offsetHeight, scrollHeight, scrollTop } = listEl;
+
+            if (isInitScroll.current || scrollHeight <= scrollTop + offsetHeight + 150) {
+                isInitScroll.current = false;
+                listEl.scrollTo(0, scrollHeight);
             }
         }
-    }, [ref.current, messages]);
+    }, [messages]);
 
-    return { scrollToLastMessage };
+    return null;
 };

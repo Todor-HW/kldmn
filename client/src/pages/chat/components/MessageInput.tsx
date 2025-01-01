@@ -41,21 +41,23 @@ export const MessageInput = () => {
 
     return (
         <>
-            <input
-                type="text"
-                placeholder="..."
-                className="input col-span-8 md:col-span-10 w-full"
-                value={inputValue}
-                onChange={onInputChange}
-                onKeyDown={onInputKeyDown}
-            />
-            <button
-                className="col-span-4 md:col-span-2 bg-accent rounded-full shadow-md flex items-center justify-center active:shadow-none disabled:text-gray-500"
-                onClick={onSendMessage}
-                disabled={inputValue.length <= 0}
-            >
-                <IconSend />
-            </button>
+            <div className="bg-primary p-3 grid grid-cols-12 gap-3">
+                <input
+                    type="text"
+                    placeholder="..."
+                    className="input col-span-9 w-full"
+                    value={inputValue}
+                    onChange={onInputChange}
+                    onKeyDown={onInputKeyDown}
+                />
+                <button
+                    className="col-span-3 bg-accent rounded-full shadow-md flex items-center justify-center [&:not(:disabled)]:active:shadow-none [&:not(:disabled]:active:scale-90"
+                    onClick={onSendMessage}
+                    disabled={inputValue.length <= 0}
+                >
+                    <IconSend />
+                </button>
+            </div>
         </>
     );
 };
