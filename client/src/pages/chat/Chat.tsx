@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 import { Message } from "../../types/chatTypes";
-import { fetchUser } from "../../services";
-// import { usePreventAppScroll } from "../../hooks";
+import { createUser, fetchUser } from "../../services";
+import { usePreventAppScroll } from "../../hooks";
 import { useChatStore } from "../../stores/chatStore";
 import { useErrorStore } from "../../stores/errorStore";
 import { Header, MessageInput, Messages } from "./components";
@@ -29,24 +29,42 @@ export const Chat = () => {
     } = useChatStore();
     const { setErrorMessage } = useErrorStore();
 
+    const isMountedRef = useRef<boolean>(false);
     const inTypingTimerRef = useRef<number | null>(null);
 
-    // usePreventAppScroll();
+    usePreventAppScroll();
     // usePeers(); // TODO: remove
 
     useEffect(() => {
-        (async () => {
-            try {
-                const publicId = Cookies.get("publicId");
-                // TODO: if publicId fetch  else create - separate routes
-                const fetched = await fetchUser(publicId);
-                Cookies.set("publicId", fetched.publicId, { sameSite: "Lax" });
-                setUser(fetched);
-            } catch (err) {
-                console.error("Error:", err);
-                setErrorMessage((err as Error).message);
-            }
-        })();
+        if (!isMountedRef.current) {
+            isMountedRef.current = true;
+            (async () => {
+                let timeoutId: number;
+
+                try {
+                    const publicId = localStorage.getItem("publicId");
+                    // const publicId = Cookies.get("publicId");
+                    // TODO: if publicId fetch  else create - separate routes
+                    let fetchedUser = publicId ? await fetchUser(publicId) : await createUser();
+                    if (fetchedUser) {
+                        localStorage.setItem("publicId", fetchedUser.publicId);
+                        // Cookies.set("publicId", fetched.publicId, { sameSite: "Lax", expires: 365 });
+                        setUser(fetchedUser);
+                    } else {
+                        throw new Error("Could not fetch or create user");
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                    setErrorMessage(`${(err as Error).message}\nReloading in 3 seconds`);
+                    timeoutId = setTimeout(() => {
+                        localStorage.clear();
+                        window.location.reload();
+                    }, 3000);
+                }
+
+                return () => clearTimeout(timeoutId);
+            })();
+        }
     }, []);
 
     useEffect(() => {

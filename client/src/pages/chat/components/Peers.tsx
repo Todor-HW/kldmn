@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 import { User } from "../../../types/chatTypes";
 import { useChatStore } from "../../../stores/chatStore";
@@ -32,13 +32,17 @@ export const Peers = () => {
     }, [error]);
 
     useEffect(() => {
-        const storedNotifications = Cookies.get("notifications");
-        const parsedNotifications = storedNotifications && JSON.parse(storedNotifications);
-        if (typeof parsedNotifications === "object") setNotifications(parsedNotifications);
+        const storedNotifications = localStorage.getItem("notifications");
+        // const storedNotifications = Cookies.get("notifications");
+        if (storedNotifications) {
+            const parsedNotifications = JSON.parse(storedNotifications);
+            if (typeof parsedNotifications === "object") setNotifications(parsedNotifications);
+        }
     }, []);
 
     useEffect(() => {
-        const storedPeerId = Cookies.get("peerId");
+        const storedPeerId = localStorage.getItem("peerId");
+        // const storedPeerId = Cookies.get("peerId");
         if (storedPeerId) {
             const foundPeer = peers.find((p) => p.publicId === storedPeerId);
             if (foundPeer) setActivePeer(foundPeer);
@@ -53,7 +57,8 @@ export const Peers = () => {
 
     const onSelectUser = (peer: User) => {
         setActivePeer(peer);
-        Cookies.set("peerId", peer.publicId);
+        localStorage.setItem("peerId", peer.publicId);
+        // Cookies.set("peerId", peer.publicId, { sameSite: "lax", expires: 1 });
         removeNotification({ from: peer.publicId });
         drawerCheckboxElRef.current?.click();
     };
