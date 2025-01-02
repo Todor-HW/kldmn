@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { Socket } from "socket.io-client";
-// import Cookies from "js-cookie";
 
 import { User } from "../types/chatTypes";
 
@@ -41,14 +40,9 @@ export const useChatStore = create<ChatStore>((set) => ({
 
                 // Update or set cookie
                 const stored = localStorage.getItem("notifications");
-                // const stored = Cookies.get("notifications");
                 const parsed = stored ? JSON.parse(stored) : {};
                 parsed[data.from] = currentCount + 1;
                 localStorage.setItem("notifications", JSON.stringify(parsed));
-                // Cookies.set("notifications", JSON.stringify(parsed), {
-                //     sameSite: "lax",
-                //     expires: 1,
-                // });
             } else {
                 console.error("Invalid data: 'from' is required.");
             }
@@ -64,14 +58,9 @@ export const useChatStore = create<ChatStore>((set) => ({
 
                 // Update or set cookie
                 const stored = localStorage.getItem("notifications");
-                // const stored = Cookies.get("notifications");
                 const parsed = stored ? JSON.parse(stored) : {};
                 delete parsed[data.from];
                 localStorage.setItem("notifications", JSON.stringify(parsed));
-                // Cookies.set("notifications", JSON.stringify(parsed), {
-                //     sameSite: "lax",
-                //     expires: 1,
-                // });
             } else {
                 console.error("Invalid data: 'from' is required.");
             }

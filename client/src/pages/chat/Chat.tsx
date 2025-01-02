@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-// import Cookies from "js-cookie";
 
 import { Message } from "../../types/chatTypes";
 import { createUser, fetchUser } from "../../services";
@@ -40,15 +39,11 @@ export const Chat = () => {
             isMountedRef.current = true;
             (async () => {
                 let timeoutId: number;
-
                 try {
                     const publicId = localStorage.getItem("publicId");
-                    // const publicId = Cookies.get("publicId");
-                    // TODO: if publicId fetch  else create - separate routes
                     let fetchedUser = publicId ? await fetchUser(publicId) : await createUser();
                     if (fetchedUser) {
                         localStorage.setItem("publicId", fetchedUser.publicId);
-                        // Cookies.set("publicId", fetched.publicId, { sameSite: "Lax", expires: 365 });
                         setUser(fetchedUser);
                     } else {
                         throw new Error("Could not fetch or create user");
@@ -61,7 +56,6 @@ export const Chat = () => {
                         window.location.reload();
                     }, 3000);
                 }
-
                 return () => clearTimeout(timeoutId);
             })();
         }
