@@ -14,7 +14,7 @@ export const usePeers = () => {
         user?.publicId ? `/chat/users?publicId=${user?.publicId}` : null,
         fetchUsers,
         {
-            dedupingInterval: 5000,
+            dedupingInterval: 1000,
         }
     );
 

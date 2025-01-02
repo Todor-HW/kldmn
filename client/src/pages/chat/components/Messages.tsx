@@ -30,7 +30,7 @@ export const Messages = (props: MessagesProps) => {
         user && activePeer ? `/chat/messages/${user?.publicId}?to=${activePeer?.publicId}` : null,
         fetchMessages,
         {
-            dedupingInterval: 5000,
+            dedupingInterval: 1000,
         }
     );
 
