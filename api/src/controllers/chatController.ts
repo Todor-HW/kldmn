@@ -6,14 +6,6 @@ import { MessageModel, UserModel } from "../models";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-    try {
-        res.status(200).json({ msg: "Hello, World!" });
-    } catch (err) {
-        res.status(500).json({ err: "An unexpected error occured." });
-    }
-});
-
 router.get("/messages/:publicId", async (req, res) => {
     try {
         const { publicId } = req.params;
@@ -71,6 +63,10 @@ router.post("/users", async (req, res) => {
         console.error("Error:", err);
         res.status(500).json({ err: "An unexpected error occured" });
     }
+});
+
+router.get("*", async (req, res) => {
+    res.status(500).json({ err: "Route not found" });
 });
 
 export default router;

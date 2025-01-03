@@ -41,7 +41,6 @@ function bindListeners() {
                 timestamp: Date.now(),
             };
             await MessageModel.create(newMessage);
-            console.log("socket.data.publicId", socket.data.publicId, newMessage);
             socket.to(to).emit("receive_message", newMessage);
             socket.emit("receive_message", newMessage);
         });

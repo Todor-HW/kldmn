@@ -1,6 +1,5 @@
 import express from "express";
 import http from "http";
-import { Server } from "socket.io";
 import helmet from "helmet";
 import cors from "cors";
 
@@ -29,6 +28,7 @@ app.get("*", (_req, res) => {
     try {
         // await loadConfig(); // Not used because env file is set in the script
         await connectMongoDb();
+        // await redisTest();
 
         const port = process.env.PORT || 8080;
         httpServer.listen(port, () => {
