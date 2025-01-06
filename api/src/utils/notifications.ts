@@ -28,10 +28,8 @@ export async function clearCachedNotification(user: string, peerId: string) {
         const cached = await redis.get(`notifications:${user}`);
         if (cached) {
             const parsed = JSON.parse(cached);
-            console.log("clearing parsed", parsed);
             delete parsed[peerId];
             await redis.set(`notifications:${user}`, JSON.stringify(parsed), "EX", 3600);
-            console.log("test", await redis.get(`notifications:${user}`));
         }
     } catch (err) {
         console.error("Error removing cached notification");

@@ -96,7 +96,6 @@ router.get("/notifications/:publicId", async (req, res) => {
 
         if (typeof peerId !== "string") throw new Error("Public id is not a string");
 
-        // await clearCachedNotification(publicId, peerId);
         const notifications = await getCachedNotifications(publicId);
 
         res.status(200).json({ notifications });
