@@ -33,38 +33,14 @@ export const useChatStore = create<ChatStore>((set) => ({
     addNotification: (data) =>
         set((state) => {
             const notifications = { ...state.notifications };
-
-            if (data.from) {
-                const currentCount = notifications[data.from] || 0;
-                notifications[data.from] = currentCount + 1;
-
-                // Update or set cookie
-                const stored = localStorage.getItem("notifications");
-                const parsed = stored ? JSON.parse(stored) : {};
-                parsed[data.from] = currentCount + 1;
-                localStorage.setItem("notifications", JSON.stringify(parsed));
-            } else {
-                console.error("Invalid data: 'from' is required.");
-            }
-
+            const currentCount = notifications[data.from] || 0;
+            notifications[data.from] = currentCount + 1;
             return { notifications };
         }),
     removeNotification: (data) => {
         set((state) => {
             const notifications = { ...state.notifications };
-
-            if (data.from) {
-                delete notifications[data.from];
-
-                // Update or set cookie
-                const stored = localStorage.getItem("notifications");
-                const parsed = stored ? JSON.parse(stored) : {};
-                delete parsed[data.from];
-                localStorage.setItem("notifications", JSON.stringify(parsed));
-            } else {
-                console.error("Invalid data: 'from' is required.");
-            }
-
+            delete notifications[data.from];
             return { notifications };
         });
     },

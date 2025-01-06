@@ -16,23 +16,13 @@ export const Chat = () => {
     const [messages, set_messages] = useState<Message[]>([]);
     const [isPeerTyping, set_isPeerTyping] = useState<boolean>(false);
 
-    const {
-        //ln
-        socket,
-        user,
-        activePeer,
-        notifications,
-        setSocket,
-        setUser,
-        addNotification,
-    } = useChatStore();
+    const { socket, user, activePeer, setSocket, setUser, addNotification } = useChatStore();
     const { setErrorMessage } = useErrorStore();
 
     const isMountedRef = useRef<boolean>(false);
     const inTypingTimerRef = useRef<number | null>(null);
 
     usePreventAppScroll();
-    // usePeers(); // TODO: remove
 
     useEffect(() => {
         if (!isMountedRef.current) {
@@ -112,14 +102,14 @@ export const Chat = () => {
             });
 
             socket.on("receive_message", (data) => {
-                console.log("[io] receive_messa");
+                console.log("[io] receive_message");
                 if (data.from === activePeer?.publicId) {
                     set_isPeerTyping(false);
                     set_messages((prevState) => [...prevState, data]);
                 } else if (data.from === user?.publicId) {
                     set_messages((prevState) => [...prevState, data]);
                 } else {
-                    addNotification({ from: data.from });
+                    addNotification(data.from);
                 }
             });
 
@@ -128,7 +118,7 @@ export const Chat = () => {
                 socket.off("receive_message");
             };
         }
-    }, [socket, isConnected, user, activePeer, notifications]);
+    }, [socket, isConnected, user, activePeer]);
 
     return (
         <>

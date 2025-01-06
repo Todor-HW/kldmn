@@ -25,5 +25,9 @@ export const usePeers = () => {
         }
     }, [data]);
 
-    return { peers, error, isLoading };
+    return {
+        peers,
+        peersError: error,
+        isPeersLoading: isLoading,
+    };
 };

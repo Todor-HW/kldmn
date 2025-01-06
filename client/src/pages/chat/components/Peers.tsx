@@ -1,62 +1,53 @@
 import { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 
-import { User } from "../../../types/chatTypes";
+import { fetchPeer } from "../../../services";
 import { useChatStore } from "../../../stores/chatStore";
 import { useErrorStore } from "../../../stores/errorStore";
 import { usePeers } from "../../../hooks/usePeers";
 import { Loading } from "../../../components";
 
 import { IconMenu } from "../../../icons";
+import { useStoredNotifications } from "../../../hooks/useStoredNotifications";
 
 export const Peers = () => {
     const [notifsCount, set_notifsCount] = useState<number>(0);
 
-    const {
-        //ln
-        user,
-        activePeer,
-        notifications,
-        setActivePeer,
-        setNotifications,
-        removeNotification,
-    } = useChatStore();
+    const { user, activePeer, notifications, setActivePeer, removeNotification } = useChatStore();
+    const { peers, peersError, isPeersLoading } = usePeers();
+    const { notificationsError } = useStoredNotifications();
     const { setErrorMessage } = useErrorStore();
-    const { peers, error, isLoading } = usePeers();
 
     const drawerCheckboxElRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (error) setErrorMessage(error.message);
-    }, [error]);
+        if (peersError) setErrorMessage(peersError.message);
+    }, [peersError]);
 
     useEffect(() => {
-        const storedNotifications = localStorage.getItem("notifications");
-        if (storedNotifications) {
-            const parsedNotifications = JSON.parse(storedNotifications);
-            if (typeof parsedNotifications === "object") setNotifications(parsedNotifications);
-        }
-    }, []);
+        if (notificationsError) setErrorMessage(notificationsError.message);
+    }, [notificationsError]);
 
+    // Stored Peer ID
     useEffect(() => {
         const storedPeerId = localStorage.getItem("peerId");
-        if (storedPeerId) {
-            const foundPeer = peers.find((p) => p.publicId === storedPeerId);
-            if (foundPeer) setActivePeer(foundPeer);
-        }
-    }, [peers]);
+        if (storedPeerId) onSelectPeer(storedPeerId);
+    }, [user]);
 
+    // Total notifications count
     useEffect(() => {
         const values = Object.values(notifications);
         const total = Array.from(values).reduce((sum, value) => sum + value, 0);
         set_notifsCount(total);
     }, [notifications]);
 
-    const onSelectUser = (peer: User) => {
-        setActivePeer(peer);
-        localStorage.setItem("peerId", peer.publicId);
-        removeNotification({ from: peer.publicId });
-        drawerCheckboxElRef.current?.click();
+    const onSelectPeer = async (peerId: string) => {
+        if (user) {
+            const fetched = await fetchPeer(user.publicId, peerId);
+            setActivePeer(fetched);
+            localStorage.setItem("peerId", peerId);
+            removeNotification({ from: peerId });
+        }
     };
 
     return (
@@ -93,7 +84,7 @@ export const Peers = () => {
                     ></label>
                     <ul className="menu bg-base-200 text-base-content min-h-full w-72 md:w-80 space-y-1 p-3">
                         <li className="menu-title">Available peers</li>
-                        {isLoading ? (
+                        {isPeersLoading ? (
                             <Loading />
                         ) : (
                             peers?.map((p, i) => {
@@ -106,7 +97,10 @@ export const Peers = () => {
                                     <li
                                         key={i}
                                         className={classNames(isActive && "active")}
-                                        onClick={() => onSelectUser(p)}
+                                        onClick={() => {
+                                            onSelectPeer(p.publicId);
+                                            drawerCheckboxElRef.current?.click();
+                                        }}
                                     >
                                         <a
                                             className={classNames(

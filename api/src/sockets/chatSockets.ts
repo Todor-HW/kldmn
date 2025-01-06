@@ -4,6 +4,7 @@ import { DefaultEventsMap, Server } from "socket.io";
 import { corsOptions } from "../config";
 import { Message } from "../types/chatTypes";
 import { MessageModel } from "../models";
+import { cacheNotification } from "../utils";
 
 const io = new Server<
     DefaultEventsMap,
@@ -23,8 +24,9 @@ function bindListeners() {
         socket.data.publicId = publicId;
         next();
     }).on("connection", (socket) => {
-        console.log(`[io] Connected pubicId: ${socket.data.publicId}`);
+        // console.log(`[io] Connected pubicId: ${socket.data.publicId}`);
 
+        // Join room
         socket.join(socket.data.publicId);
 
         socket.on("is_typing", async ({ to }) => {
@@ -34,13 +36,11 @@ function bindListeners() {
         });
 
         socket.on("send_message", async ({ to, message }) => {
-            const newMessage: Message = {
-                from: socket.data.publicId,
-                to,
-                message,
-                timestamp: Date.now(),
-            };
+            const from = socket.data.publicId;
+            const newMessage: Message = { from, to, message, timestamp: Date.now() };
             await MessageModel.create(newMessage);
+            await cacheNotification(to, from);
+
             socket.to(to).emit("receive_message", newMessage);
             socket.emit("receive_message", newMessage);
         });
